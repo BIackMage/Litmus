@@ -1,0 +1,163 @@
+<Page x:Class="Litmus.Views.ProjectDetailPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Title="Project Details"
+      Background="{StaticResource BackgroundDarkBrush}">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock x:Name="ProjectNameText" Text="Project" Style="{StaticResource Header}"/>
+                <TextBlock x:Name="ProjectDescriptionText" Style="{StaticResource Muted}" Margin="0,4,0,0"
+                           TextWrapping="Wrap" MaxWidth="600" HorizontalAlignment="Left"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button Content="Edit Project" Padding="12,6" Margin="0,0,8,0"
+                        Click="EditProject_Click"/>
+                <Button Content="+ Add Category" Style="{StaticResource PrimaryButton}" Padding="12,6" Margin="0,0,8,0"
+                        Click="AddCategory_Click"/>
+                <Button Content="Start Test Run" Style="{StaticResource SuccessButton}" Padding="12,6"
+                        Click="StartTestRun_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Categories Tree -->
+            <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,12,0" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Categories" Style="{StaticResource SubHeader}"
+                               Margin="16,16,16,12"/>
+
+                    <TreeView x:Name="CategoriesTree" Grid.Row="1" Background="Transparent"
+                              BorderThickness="0" SelectedItemChanged="CategoriesTree_SelectedItemChanged">
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Tests, Mode=OneWay}">
+                                <StackPanel Orientation="Horizontal" Margin="0,4">
+                                    <TextBlock Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    <TextBlock Text=" (" Foreground="{StaticResource ForegroundDimBrush}"/>
+                                    <TextBlock Text="{Binding TestCount, Mode=OneWay}" Foreground="{StaticResource ForegroundDimBrush}"/>
+                                    <TextBlock Text=")" Foreground="{StaticResource ForegroundDimBrush}"/>
+                                </StackPanel>
+                                <HierarchicalDataTemplate.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name, Mode=OneWay}" Margin="0,2"/>
+                                    </DataTemplate>
+                                </HierarchicalDataTemplate.ItemTemplate>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </Grid>
+            </Border>
+
+            <!-- Test Details / List -->
+            <Border Grid.Column="1" Style="{StaticResource Card}" Margin="12,0,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock x:Name="DetailTitleText" Text="Select a category or test"
+                                   Style="{StaticResource SubHeader}"/>
+                        <Button x:Name="AddTestButton" Content="+ Add Test" Style="{StaticResource PrimaryButton}"
+                                Padding="8,4" Margin="16,0,0,0" Visibility="Collapsed"
+                                Click="AddTest_Click"/>
+                        <Button x:Name="DeleteSelectedTestsButton" Content="Delete Selected"
+                                Style="{StaticResource DangerButton}" Padding="8,4" Margin="16,0,0,0"
+                                Visibility="Collapsed" Click="DeleteSelectedTests_Click"/>
+                        <Button x:Name="EditCategoryButton" Content="Edit Category" Padding="8,4" Margin="8,0,0,0"
+                                Visibility="Collapsed" Click="EditCategory_Click"/>
+                        <Button x:Name="DeleteCategoryButton" Content="Delete Category" Style="{StaticResource DangerButton}"
+                                Padding="8,4" Margin="8,0,0,0" Visibility="Collapsed"
+                                Click="DeleteCategory_Click"/>
+                    </StackPanel>
+
+                    <!-- Category View -->
+                    <DataGrid x:Name="TestsGrid" Grid.Row="1"
+                              AutoGenerateColumns="False" IsReadOnly="True"
+                              SelectionMode="Extended"
+                              Visibility="Collapsed"
+                              SelectionChanged="TestsGrid_SelectionChanged"
+                              MouseDoubleClick="TestsGrid_MouseDoubleClick">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" Width="200"/>
+                            <DataGridTextColumn Header="Description" Binding="{Binding Description, Mode=OneWay}" Width="*"/>
+                            <DataGridTextColumn Header="Priority" Binding="{Binding Priority, Mode=OneWay}" Width="80"/>
+                            <DataGridTemplateColumn Header="Actions" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Edit" Padding="6,2" Margin="0,0,4,0"
+                                                    Click="EditTest_Click"/>
+                                            <Button Content="Delete" Padding="6,2"
+                                                    Style="{StaticResource DangerButton}"
+                                                    Click="DeleteTest_Click"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Single Test View -->
+                    <ScrollViewer x:Name="TestDetailView" Grid.Row="1" Visibility="Collapsed"
+                                  VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBlock Text="Command / Syntax" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <Border Background="{StaticResource BackgroundDarkBrush}" CornerRadius="4" Padding="12">
+                                <TextBox x:Name="TestCommandText" IsReadOnly="True" Background="Transparent"
+                                         BorderThickness="0" TextWrapping="Wrap" FontFamily="Consolas"/>
+                            </Border>
+
+                            <TextBlock Text="Expected Result" FontWeight="SemiBold" Margin="0,16,0,8"/>
+                            <TextBlock x:Name="TestExpectedText" TextWrapping="Wrap"/>
+
+                            <TextBlock Text="Preparation Steps" FontWeight="SemiBold" Margin="0,16,0,8"/>
+                            <TextBlock x:Name="TestPrepText" TextWrapping="Wrap"/>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
+                                <Button Content="Edit Test" Padding="12,6" Margin="0,0,8,0"
+                                        Click="EditSelectedTest_Click"/>
+                                <Button Content="Delete Test" Style="{StaticResource DangerButton}" Padding="12,6"
+                                        Click="DeleteSelectedTest_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Placeholder -->
+                    <TextBlock x:Name="PlaceholderText" Grid.Row="1"
+                               Text="Select a category to view its tests, or select a test to view details."
+                               Style="{StaticResource Muted}"
+                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

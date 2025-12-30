@@ -1,0 +1,79 @@
+{
+  "project": {
+    "name": "Sample Application Tests",
+    "description": "Test plan for the Sample Application v1.0"
+  },
+  "categories": [
+    {
+      "name": "Authentication",
+      "tests": [
+        {
+          "name": "Valid Login",
+          "description": "Verify that users can log in with valid credentials",
+          "command": "Navigate to /login, enter valid username and password, click Submit",
+          "expectedResult": "User is redirected to dashboard, welcome message displays username",
+          "prepSteps": "Ensure test user account exists: testuser@example.com / TestPass123!",
+          "priority": "critical"
+        },
+        {
+          "name": "Invalid Login - Wrong Password",
+          "description": "Verify that login fails with incorrect password",
+          "command": "Navigate to /login, enter valid username with wrong password, click Submit",
+          "expectedResult": "Error message displays: 'Invalid credentials'",
+          "prepSteps": null,
+          "priority": "high"
+        },
+        {
+          "name": "Password Reset Flow",
+          "description": "Verify password reset email is sent",
+          "command": "Click 'Forgot Password', enter email, submit",
+          "expectedResult": "Confirmation message and reset email received within 1 minute",
+          "prepSteps": "Have access to test email inbox",
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "tests": [
+        {
+          "name": "Dashboard Loads Correctly",
+          "description": "Verify dashboard displays all widgets after login",
+          "command": "Log in and observe dashboard page",
+          "expectedResult": "All 4 widgets (Stats, Recent Activity, Quick Actions, Notifications) are visible",
+          "prepSteps": null,
+          "priority": "high"
+        },
+        {
+          "name": "Widget Data Refresh",
+          "description": "Verify widgets refresh when clicking refresh button",
+          "command": "Click the refresh icon on any widget",
+          "expectedResult": "Widget shows loading indicator, then updates with fresh data",
+          "prepSteps": "Make a change in another browser tab to create new data",
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "name": "Data Export",
+      "tests": [
+        {
+          "name": "Export to CSV",
+          "description": "Verify data exports correctly to CSV format",
+          "command": "Navigate to Reports, select date range, click 'Export CSV'",
+          "expectedResult": "CSV file downloads with correct headers and data",
+          "prepSteps": "Ensure there is data in the selected date range",
+          "priority": "high"
+        },
+        {
+          "name": "Export to PDF",
+          "description": "Verify report exports to PDF with formatting",
+          "command": "Navigate to Reports, select date range, click 'Export PDF'",
+          "expectedResult": "PDF downloads with charts, tables, and company branding",
+          "prepSteps": null,
+          "priority": "low"
+        }
+      ]
+    }
+  ]
+}

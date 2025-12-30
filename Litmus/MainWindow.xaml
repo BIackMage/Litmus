@@ -1,0 +1,89 @@
+<Window x:Class="Litmus.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Litmus - Test Manager"
+        Height="800" Width="1200"
+        MinHeight="600" MinWidth="900"
+        WindowStartupLocation="CenterScreen"
+        Style="{StaticResource DarkWindowStyle}">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="{StaticResource BackgroundMediumBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Logo/Title -->
+                <StackPanel Grid.Row="0" Margin="16,20,16,20">
+                    <TextBlock Text="LITMUS" FontSize="28" FontWeight="Bold"
+                               Foreground="{StaticResource AccentBrush}"/>
+                    <TextBlock Text="Test Manager" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <!-- Search Box -->
+                <Border Grid.Row="1" Margin="12,0,12,16">
+                    <Grid>
+                        <TextBox x:Name="SearchBox" Padding="30,8,8,8"
+                                 KeyDown="SearchBox_KeyDown"/>
+                        <TextBlock Text="&#128269;" FontSize="14"
+                                   VerticalAlignment="Center" Margin="10,0,0,0"
+                                   IsHitTestVisible="False"
+                                   Foreground="{StaticResource ForegroundDimBrush}"/>
+                        <TextBlock x:Name="SearchPlaceholder"
+                                   Text="Search tests... (Enter)"
+                                   VerticalAlignment="Center" Margin="32,0,0,0"
+                                   IsHitTestVisible="False"
+                                   Foreground="{StaticResource ForegroundDimBrush}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Navigation -->
+                <StackPanel Grid.Row="2">
+                    <Button x:Name="NavDashboard" Content="Dashboard"
+                            Style="{StaticResource NavButton}"
+                            Click="NavDashboard_Click" Tag="Active"/>
+                    <Button x:Name="NavProjects" Content="Projects"
+                            Style="{StaticResource NavButton}"
+                            Click="NavProjects_Click"/>
+                    <Button x:Name="NavTestRuns" Content="Test Runs"
+                            Style="{StaticResource NavButton}"
+                            Click="NavTestRuns_Click"/>
+                    <Button x:Name="NavReports" Content="Reports"
+                            Style="{StaticResource NavButton}"
+                            Click="NavReports_Click"/>
+
+                    <Separator Margin="16,16" Background="{StaticResource BorderBrush}"/>
+
+                    <Button x:Name="NavImport" Content="Import Tests"
+                            Style="{StaticResource NavButton}"
+                            Click="NavImport_Click"/>
+                    <Button x:Name="NavExport" Content="Export Tests"
+                            Style="{StaticResource NavButton}"
+                            Click="NavExport_Click"/>
+                </StackPanel>
+
+                <!-- Version -->
+                <TextBlock Grid.Row="3" Text="v1.0.0"
+                           Style="{StaticResource Muted}"
+                           Margin="16,0,16,16"/>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Frame x:Name="MainFrame" Grid.Column="1" NavigationUIVisibility="Hidden"/>
+    </Grid>
+</Window>

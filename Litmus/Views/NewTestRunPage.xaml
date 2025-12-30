@@ -1,0 +1,80 @@
+<Page x:Class="Litmus.Views.NewTestRunPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Title="New Test Run"
+      Background="{StaticResource BackgroundDarkBrush}">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock Text="New Test Run" Style="{StaticResource Header}"/>
+            <TextBlock Text="Create a new test execution run" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- Form -->
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <StackPanel MaxWidth="500" HorizontalAlignment="Left">
+                <!-- Project Selection -->
+                <TextBlock Text="Project" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                <ComboBox x:Name="ProjectComboBox" DisplayMemberPath="Name"
+                          SelectionChanged="ProjectComboBox_SelectionChanged"/>
+
+                <!-- Build Version -->
+                <TextBlock Text="Build Version" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="MajorTextBox" Width="60" Text="1" TextAlignment="Center"/>
+                    <TextBlock Text="." VerticalAlignment="Center" Margin="8,0"/>
+                    <TextBox x:Name="MinorTextBox" Width="60" Text="0" TextAlignment="Center"/>
+                    <TextBlock Text="." VerticalAlignment="Center" Margin="8,0"/>
+                    <TextBox x:Name="PatchTextBox" Width="60" Text="0" TextAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Run Type -->
+                <TextBlock Text="Run Type" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                <StackPanel>
+                    <RadioButton x:Name="FullRunRadio" Content="Full Run - All tests, starting fresh"
+                                 Foreground="{StaticResource ForegroundBrush}" IsChecked="True"
+                                 Margin="0,0,0,8"/>
+                    <RadioButton x:Name="CopyPreviousRadio" Content="Copy Previous - All tests with previous results pre-filled"
+                                 Foreground="{StaticResource ForegroundBrush}"
+                                 Margin="0,0,0,8"/>
+                    <RadioButton x:Name="RetestFailedRadio" Content="Retest Failed - Only tests that failed in the last run"
+                                 Foreground="{StaticResource ForegroundBrush}"/>
+                </StackPanel>
+
+                <!-- Previous Run Selection (for copy/retest options) -->
+                <StackPanel x:Name="PreviousRunPanel" Visibility="Collapsed" Margin="0,16,0,0">
+                    <TextBlock Text="Previous Run" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <ComboBox x:Name="PreviousRunComboBox" DisplayMemberPath="DisplayText"/>
+                </StackPanel>
+
+                <!-- Summary -->
+                <Border Background="{StaticResource BackgroundDarkBrush}" CornerRadius="4"
+                        Padding="16" Margin="0,24,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Summary" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <TextBlock x:Name="SummaryText" TextWrapping="Wrap" Style="{StaticResource Muted}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
+            <Button Content="Cancel" Padding="16,8" Margin="0,0,12,0"
+                    Click="Cancel_Click"/>
+            <Button x:Name="StartButton" Content="Start Test Run" Style="{StaticResource SuccessButton}"
+                    Padding="16,8" IsEnabled="False"
+                    Click="Start_Click"/>
+        </StackPanel>
+    </Grid>
+</Page>

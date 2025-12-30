@@ -1,0 +1,93 @@
+<Page x:Class="Litmus.Views.ExportPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Title="Export Tests"
+      Background="{StaticResource BackgroundDarkBrush}">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock Text="Export Tests" Style="{StaticResource Header}"/>
+            <TextBlock Text="Export test plans to JSON files for version control or sharing" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Export Panel -->
+            <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,12,0">
+                <StackPanel>
+                    <!-- Template Section -->
+                    <TextBlock Text="Blank Template" Style="{StaticResource SubHeader}" Margin="0,0,0,8"/>
+                    <TextBlock Text="Download a blank template for creating new test plans" Style="{StaticResource Muted}" Margin="0,0,0,12" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Download Template" Click="DownloadTemplate_Click" Padding="12,6"/>
+                        <Button Content="Preview Template" Click="PreviewTemplate_Click" Padding="12,6" Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <Separator Margin="0,24" Background="{StaticResource BorderBrush}"/>
+
+                    <TextBlock Text="Export Project" Style="{StaticResource SubHeader}" Margin="0,0,0,16"/>
+
+                    <ComboBox x:Name="ProjectComboBox" Width="300" HorizontalAlignment="Left"
+                              DisplayMemberPath="Name"
+                              SelectionChanged="ProjectComboBox_SelectionChanged"/>
+
+                    <Separator Margin="0,24" Background="{StaticResource BorderBrush}"/>
+
+                    <TextBlock Text="Export Options" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                    <CheckBox x:Name="IncludeDescription" Content="Include project description"
+                              Foreground="{StaticResource ForegroundBrush}" IsChecked="True" Margin="0,0,0,8"/>
+
+                    <CheckBox x:Name="IndentedJson" Content="Format JSON with indentation"
+                              Foreground="{StaticResource ForegroundBrush}" IsChecked="True"/>
+
+                    <Separator Margin="0,24" Background="{StaticResource BorderBrush}"/>
+
+                    <Button x:Name="ExportButton" Content="Export to JSON" Style="{StaticResource PrimaryButton}"
+                            HorizontalAlignment="Left" IsEnabled="False"
+                            Click="Export_Click"/>
+
+                    <TextBlock x:Name="ExportStatusText" Style="{StaticResource Muted}"
+                               Margin="0,12,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Preview Panel -->
+            <Border Grid.Column="1" Style="{StaticResource Card}" Margin="12,0,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="Preview" Style="{StaticResource SubHeader}"/>
+                        <Button Content="Copy to Clipboard" Padding="8,4" Margin="16,0,0,0"
+                                Click="CopyToClipboard_Click"/>
+                    </StackPanel>
+
+                    <TextBox x:Name="PreviewTextBox" Grid.Row="1"
+                             IsReadOnly="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             FontFamily="Consolas"
+                             FontSize="12"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

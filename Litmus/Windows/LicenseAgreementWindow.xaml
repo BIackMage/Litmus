@@ -1,0 +1,60 @@
+<Window x:Class="Litmus.Windows.LicenseAgreementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="License Agreement - Litmus Test Manager"
+        Width="700" Height="600"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#1e1e1e">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="Litmus Test Manager" FontSize="24" FontWeight="Bold" Foreground="#e0e0e0"/>
+            <TextBlock Text="Please read and accept the license agreement to continue."
+                       Foreground="#888888" Margin="0,8,0,0"/>
+        </StackPanel>
+
+        <!-- License Text -->
+        <Border Grid.Row="1" Background="#2d2d2d" CornerRadius="4" Padding="4">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <TextBox x:Name="LicenseTextBox"
+                         IsReadOnly="True"
+                         TextWrapping="Wrap"
+                         Background="Transparent"
+                         Foreground="#e0e0e0"
+                         BorderThickness="0"
+                         FontFamily="Segoe UI"
+                         FontSize="13"
+                         Padding="12"/>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Checkbox -->
+        <CheckBox x:Name="AcceptCheckbox" Grid.Row="2" Margin="0,16,0,0"
+                  Content="I have read and agree to the terms of the PolyForm Noncommercial License 1.0.0"
+                  Foreground="#e0e0e0"
+                  Checked="AcceptCheckbox_Changed"
+                  Unchecked="AcceptCheckbox_Changed"/>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button x:Name="DeclineButton" Content="Decline"
+                    Width="100" Padding="12,8"
+                    Background="#3d3d3d" Foreground="#e0e0e0" BorderThickness="0"
+                    Click="DeclineButton_Click"/>
+            <Button x:Name="AcceptButton" Content="Accept"
+                    Width="100" Padding="12,8" Margin="12,0,0,0"
+                    Background="#0078d4" Foreground="White" BorderThickness="0"
+                    IsEnabled="False"
+                    Click="AcceptButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,129 @@
+<Page x:Class="Litmus.Views.ReportsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Title="Reports"
+      Background="{StaticResource BackgroundDarkBrush}">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Reports" Style="{StaticResource Header}"/>
+                <TextBlock Text="Test results analysis and trends" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <ComboBox x:Name="ProjectFilter" Width="200" Margin="0,0,12,0"
+                          DisplayMemberPath="Name"
+                          SelectionChanged="ProjectFilter_SelectionChanged"/>
+                <Button Content="Export PDF" Style="{StaticResource PrimaryButton}"
+                        Click="ExportPdf_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Charts Row -->
+        <Grid Grid.Row="1" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Pie Chart -->
+            <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,12,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Current Status" Style="{StaticResource SubHeader}" Margin="0,0,0,16"/>
+                    <ContentControl x:Name="PieChartHost" Grid.Row="1" MinHeight="200"/>
+
+                    <StackPanel x:Name="PieChartStats" Grid.Row="1" VerticalAlignment="Bottom">
+                        <StackPanel Orientation="Horizontal" Margin="0,4">
+                            <Ellipse Width="12" Height="12" Fill="{StaticResource SuccessBrush}" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="PassedCountText" Text="Passed: 0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4">
+                            <Ellipse Width="12" Height="12" Fill="{StaticResource ErrorBrush}" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="FailedCountText" Text="Failed: 0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4">
+                            <Ellipse Width="12" Height="12" Fill="{StaticResource ForegroundDimBrush}" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="NotRunCountText" Text="Not Run: 0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Trend Chart -->
+            <Border Grid.Column="1" Style="{StaticResource Card}" Margin="12,0,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Pass Rate Trend" Style="{StaticResource SubHeader}" Margin="0,0,0,16"/>
+                    <ContentControl x:Name="TrendChartHost" Grid.Row="1" MinHeight="200"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Failed Tests List -->
+        <Border Grid.Row="2" Style="{StaticResource Card}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+                    <TextBlock Text="Failed Tests" Style="{StaticResource SubHeader}"/>
+                    <TextBlock x:Name="FailedTestsCount" Text=" (0)" Style="{StaticResource SubHeader}"
+                               Foreground="{StaticResource ErrorBrush}"/>
+                </StackPanel>
+
+                <DataGrid x:Name="FailedTestsGrid" Grid.Row="1"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          HeadersVisibility="Column">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Test Name" Binding="{Binding TestName, Mode=OneWay}" Width="250"/>
+                        <DataGridTextColumn Header="Category" Binding="{Binding CategoryName, Mode=OneWay}" Width="150"/>
+                        <DataGridTextColumn Header="Last Run" Binding="{Binding LastRunDate, Mode=OneWay, StringFormat='{}{0:MMM dd, yyyy}'}" Width="120"/>
+                        <DataGridTextColumn Header="Notes" Binding="{Binding Notes, Mode=OneWay}" Width="*"/>
+                        <DataGridTemplateColumn Header="Actions" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="View Test" Padding="8,2"
+                                            Click="ViewTest_Click"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <TextBlock x:Name="NoFailedTestsText" Grid.Row="1"
+                           Text="No failed tests! All tests are passing."
+                           Style="{StaticResource Muted}"
+                           VerticalAlignment="Center" HorizontalAlignment="Center"
+                           Foreground="{StaticResource SuccessBrush}"
+                           Visibility="Collapsed"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

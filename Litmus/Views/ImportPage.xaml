@@ -1,0 +1,154 @@
+<Page x:Class="Litmus.Views.ImportPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Title="Import Tests"
+      Background="{StaticResource BackgroundDarkBrush}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,24">
+                <TextBlock Text="Import Tests" Style="{StaticResource Header}"/>
+                <TextBlock Text="Import test plans from JSON files" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- Section 1: Import New Project -->
+            <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Import Panel -->
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Import as New Project" Style="{StaticResource SubHeader}" Margin="0,0,0,8"/>
+                        <TextBlock Text="Create a new project from a JSON test plan file" Style="{StaticResource Muted}" Margin="0,0,0,16"/>
+
+                        <Button Content="Browse for File..." Style="{StaticResource PrimaryButton}"
+                                HorizontalAlignment="Left" Margin="0,0,0,16"
+                                Click="BrowseFile_Click"/>
+
+                        <TextBlock x:Name="SelectedFileText" Text="No file selected"
+                                   Style="{StaticResource Muted}" TextWrapping="Wrap"/>
+
+                        <Separator Margin="0,24" Background="{StaticResource BorderBrush}"/>
+
+                        <TextBlock Text="Import Options" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                        <CheckBox x:Name="OverwriteExisting" Content="Overwrite existing project if name matches"
+                                  Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,8"/>
+
+                        <CheckBox x:Name="MergeCategories" Content="Merge categories with existing"
+                                  Foreground="{StaticResource ForegroundBrush}" IsChecked="True"/>
+
+                        <Separator Margin="0,24" Background="{StaticResource BorderBrush}"/>
+
+                        <Button x:Name="ImportButton" Content="Import as New Project" Style="{StaticResource SuccessButton}"
+                                HorizontalAlignment="Left" IsEnabled="False"
+                                Click="Import_Click"/>
+
+                        <TextBlock x:Name="ImportStatusText" Style="{StaticResource Muted}"
+                                   Margin="0,12,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <!-- Preview Panel -->
+                    <Border Grid.Column="1" Background="{StaticResource BackgroundDarkBrush}"
+                            CornerRadius="4" Padding="12" Margin="16,0,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="Preview" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                            <TextBox x:Name="PreviewTextBox" Grid.Row="1"
+                                     IsReadOnly="True"
+                                     TextWrapping="Wrap"
+                                     VerticalScrollBarVisibility="Auto"
+                                     FontFamily="Consolas"
+                                     FontSize="11"
+                                     MinHeight="200"
+                                     MaxHeight="300"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Section 2: Add to Existing Project -->
+            <Border Grid.Row="2" Style="{StaticResource Card}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Add to Project Panel -->
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Add Tests to Existing Project" Style="{StaticResource SubHeader}" Margin="0,0,0,8"/>
+                        <TextBlock Text="Append tests from a JSON file to an existing project" Style="{StaticResource Muted}" Margin="0,0,0,16"/>
+
+                        <TextBlock Text="Select Project" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <ComboBox x:Name="AppendProjectComboBox" DisplayMemberPath="Name" Margin="0,0,0,16"/>
+
+                        <Button Content="Browse for File..." Style="{StaticResource PrimaryButton}"
+                                HorizontalAlignment="Left" Margin="0,0,0,16"
+                                Click="BrowseAppendFile_Click"/>
+
+                        <TextBlock x:Name="AppendSelectedFileText" Text="No file selected"
+                                   Style="{StaticResource Muted}" TextWrapping="Wrap"/>
+
+                        <Separator Margin="0,24" Background="{StaticResource BorderBrush}"/>
+
+                        <CheckBox x:Name="AppendMergeCategories" Content="Merge with existing categories (same name)"
+                                  Foreground="{StaticResource ForegroundBrush}" IsChecked="True" Margin="0,0,0,8"/>
+
+                        <CheckBox x:Name="AppendSkipDuplicates" Content="Skip tests with duplicate names"
+                                  Foreground="{StaticResource ForegroundBrush}" IsChecked="True"/>
+
+                        <Separator Margin="0,24" Background="{StaticResource BorderBrush}"/>
+
+                        <Button x:Name="AppendButton" Content="Add Tests to Project" Style="{StaticResource SuccessButton}"
+                                HorizontalAlignment="Left" IsEnabled="False"
+                                Click="Append_Click"/>
+
+                        <TextBlock x:Name="AppendStatusText" Style="{StaticResource Muted}"
+                                   Margin="0,12,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <!-- Append Preview Panel -->
+                    <Border Grid.Column="1" Background="{StaticResource BackgroundDarkBrush}"
+                            CornerRadius="4" Padding="12" Margin="16,0,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="Preview" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                            <TextBox x:Name="AppendPreviewTextBox" Grid.Row="1"
+                                     IsReadOnly="True"
+                                     TextWrapping="Wrap"
+                                     VerticalScrollBarVisibility="Auto"
+                                     FontFamily="Consolas"
+                                     FontSize="11"
+                                     MinHeight="200"
+                                     MaxHeight="300"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>
