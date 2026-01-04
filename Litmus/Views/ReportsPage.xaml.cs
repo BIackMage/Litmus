@@ -98,10 +98,12 @@ public partial class ReportsPage : Page
         // Calculate status counts
         var passedCount = latestResults.Count(r => r.Status == TestStatus.Pass);
         var failedCount = latestResults.Count(r => r.Status == TestStatus.Fail);
+        var blockedCount = latestResults.Count(r => r.Status == TestStatus.Blocked);
         var notRunCount = latestResults.Count(r => r.Status == TestStatus.NotRun);
 
         PassedCountText.Text = $"Passed: {passedCount}";
         FailedCountText.Text = $"Failed: {failedCount}";
+        BlockedCountText.Text = $"Blocked: {blockedCount}";
         NotRunCountText.Text = $"Not Run: {notRunCount}";
 
         // Pie chart
@@ -124,6 +126,15 @@ public partial class ReportsPage : Page
                     Values = new[] { failedCount },
                     Name = "Failed",
                     Fill = new SolidColorPaint(SKColor.Parse("#F14C4C"))
+                });
+            }
+            if (blockedCount > 0)
+            {
+                pieSeries.Add(new PieSeries<int>
+                {
+                    Values = new[] { blockedCount },
+                    Name = "Blocked",
+                    Fill = new SolidColorPaint(SKColor.Parse("#CC7000"))
                 });
             }
             if (notRunCount > 0)

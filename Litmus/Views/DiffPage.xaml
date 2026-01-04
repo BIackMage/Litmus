@@ -11,6 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -52,8 +53,79 @@
             </Grid>
         </Border>
 
+        <!-- Summary Stats -->
+        <Border x:Name="SummaryPanel" Grid.Row="2" Style="{StaticResource Card}" Margin="0,0,0,16" Padding="16,12"
+                Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Run Stats -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock x:Name="LeftRunLabel" Text="Baseline" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <UniformGrid Columns="4">
+                        <StackPanel>
+                            <TextBlock x:Name="LeftPassedText" Text="0" FontSize="20" FontWeight="Bold"
+                                       Foreground="{StaticResource SuccessBrush}"/>
+                            <TextBlock Text="Passed" Style="{StaticResource Muted}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock x:Name="LeftFailedText" Text="0" FontSize="20" FontWeight="Bold"
+                                       Foreground="{StaticResource ErrorBrush}"/>
+                            <TextBlock Text="Failed" Style="{StaticResource Muted}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock x:Name="LeftBlockedText" Text="0" FontSize="20" FontWeight="Bold"
+                                       Foreground="#CC7000"/>
+                            <TextBlock Text="Blocked" Style="{StaticResource Muted}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock x:Name="LeftPassRateText" Text="0%" FontSize="20" FontWeight="Bold"
+                                       Foreground="{StaticResource AccentBrush}"/>
+                            <TextBlock Text="Pass Rate" Style="{StaticResource Muted}"/>
+                        </StackPanel>
+                    </UniformGrid>
+                </StackPanel>
+
+                <!-- Arrow -->
+                <TextBlock Grid.Column="1" Text="→" FontSize="24" FontWeight="Bold"
+                           VerticalAlignment="Center" Margin="24,0"
+                           Foreground="{StaticResource ForegroundDimBrush}"/>
+
+                <!-- Right Run Stats -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock x:Name="RightRunLabel" Text="Compare" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <UniformGrid Columns="4">
+                        <StackPanel>
+                            <TextBlock x:Name="RightPassedText" Text="0" FontSize="20" FontWeight="Bold"
+                                       Foreground="{StaticResource SuccessBrush}"/>
+                            <TextBlock Text="Passed" Style="{StaticResource Muted}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock x:Name="RightFailedText" Text="0" FontSize="20" FontWeight="Bold"
+                                       Foreground="{StaticResource ErrorBrush}"/>
+                            <TextBlock Text="Failed" Style="{StaticResource Muted}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock x:Name="RightBlockedText" Text="0" FontSize="20" FontWeight="Bold"
+                                       Foreground="#CC7000"/>
+                            <TextBlock Text="Blocked" Style="{StaticResource Muted}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock x:Name="RightPassRateText" Text="0%" FontSize="20" FontWeight="Bold"
+                                       Foreground="{StaticResource AccentBrush}"/>
+                            <TextBlock Text="Pass Rate" Style="{StaticResource Muted}"/>
+                        </StackPanel>
+                    </UniformGrid>
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Results -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>

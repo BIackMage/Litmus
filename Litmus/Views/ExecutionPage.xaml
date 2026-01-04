@@ -45,6 +45,8 @@
                 <TextBlock Text=" / " Style="{StaticResource Muted}"/>
                 <TextBlock x:Name="FailedCountText" Foreground="{StaticResource ErrorBrush}"/>
                 <TextBlock Text=" / " Style="{StaticResource Muted}"/>
+                <TextBlock x:Name="BlockedCountText" Foreground="#CC7000"/>
+                <TextBlock Text=" / " Style="{StaticResource Muted}"/>
                 <TextBlock x:Name="NotRunCountText" Foreground="{StaticResource ForegroundDimBrush}"/>
                 <Button Content="Exit" Padding="12,6" Margin="24,0,0,0"
                         Click="Exit_Click"/>
@@ -76,8 +78,15 @@
                             <TextBlock x:Name="CategoryText" Style="{StaticResource Muted}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock x:Name="TestNameText" FontSize="24" FontWeight="SemiBold"
-                                   TextWrapping="Wrap" Margin="0,0,0,16"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <TextBlock x:Name="TestNameText" FontSize="24" FontWeight="SemiBold"
+                                       TextWrapping="Wrap" VerticalAlignment="Center"/>
+                            <Button x:Name="EditTestButton" Content="Edit Test" Padding="12,6" Margin="16,0,0,0"
+                                    VerticalAlignment="Center" Click="EditTest_Click"/>
+                            <Button x:Name="MoveToEndButton" Content="Move to End" Padding="12,6" Margin="8,0,0,0"
+                                    VerticalAlignment="Center" Click="MoveToEnd_Click"
+                                    ToolTip="Push this test to the end of the list"/>
+                        </StackPanel>
 
                         <!-- Description -->
                         <TextBlock Text="Description" FontWeight="SemiBold" Margin="0,0,0,8"/>
@@ -138,6 +147,11 @@
                         <Button x:Name="SkipButton" Content="SKIP - Come Back Later (S)"
                                 Padding="0,8" Margin="0,0,0,8"
                                 Click="Skip_Click"/>
+                        <Button x:Name="BlockedButton" Content="BLOCKED (B)"
+                                Padding="0,8" Margin="0,0,0,8"
+                                Background="#CC7000" Foreground="White"
+                                Click="Blocked_Click"
+                                ToolTip="Mark test as blocked - cannot be executed due to external dependency"/>
 
                         <!-- Quick Fail Templates -->
                         <ComboBox x:Name="FailTemplateComboBox" Margin="0,8,0,0"
@@ -156,8 +170,8 @@
                         <TextBlock Text="Notes" FontWeight="SemiBold" Margin="0,0,0,8"/>
                         <TextBox x:Name="NotesTextBox"
                                  TextWrapping="Wrap" AcceptsReturn="True"
-                                 VerticalScrollBarVisibility="Auto"
-                                 MinHeight="150"/>
+                                 VerticalScrollBarVisibility="Visible"
+                                 Height="150"/>
                     </StackPanel>
 
                     <!-- Attachments -->
@@ -166,6 +180,9 @@
                             <TextBlock Text="Attachments" FontWeight="SemiBold"/>
                             <Button Content="+ Add" Padding="8,2" Margin="12,0,0,0"
                                     Click="AddAttachment_Click"/>
+                            <Button Content="📷 Screenshot" Padding="8,2" Margin="8,0,0,0"
+                                    Click="CaptureScreenshot_Click"
+                                    ToolTip="Capture screenshot and attach (Ctrl+Shift+S)"/>
                         </StackPanel>
                         <ListBox x:Name="AttachmentsList" MaxHeight="100"
                                  Background="Transparent" BorderThickness="0">
@@ -219,6 +236,7 @@
                 <Run Text="Shortcuts: "/>
                 <Run Text="P" FontWeight="Bold"/> <Run Text="= Pass  "/>
                 <Run Text="F" FontWeight="Bold"/> <Run Text="= Fail  "/>
+                <Run Text="B" FontWeight="Bold"/> <Run Text="= Blocked  "/>
                 <Run Text="S" FontWeight="Bold"/> <Run Text="= Skip  "/>
                 <Run Text="N" FontWeight="Bold"/> <Run Text="= Next Not Run  "/>
                 <Run Text="←/→" FontWeight="Bold"/> <Run Text="= Navigate  "/>

@@ -170,6 +170,11 @@ public static class JsonImportService
                             };
                         }
 
+                        if (testElement.TryGetProperty("isAutomated", out var isAutoElement))
+                        {
+                            test.IsAutomated = isAutoElement.GetBoolean();
+                        }
+
                         if (existingTest == null)
                         {
                             context.Tests.Add(test);
@@ -317,6 +322,11 @@ public static class JsonImportService
                                 var priorityStr = priorityElement.GetString()?.ToLower() ?? "medium";
                                 existingTest.Priority = ParsePriority(priorityStr);
                             }
+
+                            if (testElement.TryGetProperty("isAutomated", out var isAutoElement))
+                            {
+                                existingTest.IsAutomated = isAutoElement.GetBoolean();
+                            }
                             Debug.WriteLine($"[JsonImportService] Updated existing test: {testName}");
                         }
                         else
@@ -336,6 +346,11 @@ public static class JsonImportService
                             {
                                 var priorityStr = priorityElement.GetString()?.ToLower() ?? "medium";
                                 test.Priority = ParsePriority(priorityStr);
+                            }
+
+                            if (testElement.TryGetProperty("isAutomated", out var isAutoElement2))
+                            {
+                                test.IsAutomated = isAutoElement2.GetBoolean();
                             }
 
                             context.Tests.Add(test);

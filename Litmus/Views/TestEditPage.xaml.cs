@@ -53,6 +53,7 @@ public partial class TestEditPage : Page
             ExpectedResultTextBox.Text = test.ExpectedResult;
             PrepStepsTextBox.Text = test.PrepSteps;
             PriorityComboBox.SelectedIndex = (int)test.Priority;
+            IsAutomatedCheckBox.IsChecked = test.IsAutomated;
         }
     }
 
@@ -99,6 +100,7 @@ public partial class TestEditPage : Page
         test.ExpectedResult = ExpectedResultTextBox.Text.Trim();
         test.PrepSteps = PrepStepsTextBox.Text.Trim();
         test.Priority = (Priority)((PriorityComboBox.SelectedItem as ComboBoxItem)?.Tag ?? 1);
+        test.IsAutomated = IsAutomatedCheckBox.IsChecked ?? false;
 
         context.SaveChanges();
         Debug.WriteLine($"[TestEditPage] Test saved: {test.Id}");

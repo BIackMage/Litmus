@@ -4,7 +4,8 @@ public enum TestStatus
 {
     NotRun = 0,
     Pass = 1,
-    Fail = 2
+    Fail = 2,
+    Blocked = 3
 }
 
 public enum Priority

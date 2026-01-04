@@ -63,6 +63,10 @@
                             <TextBlock x:Name="FailedCountText" Text="Failed: 0"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,4">
+                            <Ellipse Width="12" Height="12" Fill="#CC7000" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="BlockedCountText" Text="Blocked: 0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4">
                             <Ellipse Width="12" Height="12" Fill="{StaticResource ForegroundDimBrush}" Margin="0,0,8,0"/>
                             <TextBlock x:Name="NotRunCountText" Text="Not Run: 0"/>
                         </StackPanel>

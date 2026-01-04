@@ -58,6 +58,10 @@
                         <ComboBoxItem Content="High" Tag="2"/>
                         <ComboBoxItem Content="Critical" Tag="3"/>
                     </ComboBox>
+
+                    <CheckBox x:Name="IsAutomatedCheckBox" Content="Automated Test" Margin="0,16,0,0"
+                              Foreground="{StaticResource ForegroundBrush}"
+                              ToolTip="Check if this test has automated testing coverage"/>
                 </StackPanel>
             </Border>
         </ScrollViewer>

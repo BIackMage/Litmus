@@ -13,6 +13,7 @@ public class Test
     public string PrepSteps { get; set; } = string.Empty;
     public Priority Priority { get; set; } = Priority.Medium;
     public int SortOrder { get; set; }
+    public bool IsAutomated { get; set; } = false;
 
     // Navigation properties
     public Category Category { get; set; } = null!;

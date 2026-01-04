@@ -7,9 +7,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Litmus.Data;
 using Litmus.Models;
 using Litmus.Services;
+using Litmus.Windows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 
@@ -162,6 +164,7 @@ public partial class ExecutionPage : Page
             {
                 TestStatus.Pass => (Brush)FindResource("SuccessBrush"),
                 TestStatus.Fail => (Brush)FindResource("ErrorBrush"),
+                TestStatus.Blocked => new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#CC7000")),
                 _ => (Brush)FindResource("ForegroundDimBrush")
             };
         }
@@ -180,19 +183,23 @@ public partial class ExecutionPage : Page
             ? new Thickness(3) : new Thickness(1);
         FailButton.BorderThickness = _currentResult.Status == TestStatus.Fail
             ? new Thickness(3) : new Thickness(1);
+        BlockedButton.BorderThickness = _currentResult.Status == TestStatus.Blocked
+            ? new Thickness(3) : new Thickness(1);
     }
 
     private void UpdateProgress()
     {
         var passed = _results.Count(r => r.Status == TestStatus.Pass);
         var failed = _results.Count(r => r.Status == TestStatus.Fail);
+        var blocked = _results.Count(r => r.Status == TestStatus.Blocked);
         var notRun = _results.Count(r => r.Status == TestStatus.NotRun);
 
         PassedCountText.Text = passed.ToString();
         FailedCountText.Text = failed.ToString();
+        BlockedCountText.Text = blocked.ToString();
         NotRunCountText.Text = notRun.ToString();
 
-        var completed = passed + failed;
+        var completed = passed + failed + blocked;
         ProgressBar.Maximum = _results.Count;
         ProgressBar.Value = completed;
     }
@@ -248,12 +255,20 @@ public partial class ExecutionPage : Page
                 MarkAs(TestStatus.Fail);
                 e.Handled = true;
                 break;
+            case Key.B:
+                MarkAs(TestStatus.Blocked);
+                e.Handled = true;
+                break;
             case Key.Left:
                 GoToPrevious();
                 e.Handled = true;
                 break;
             case Key.Right:
                 SaveAndGoNext();
+                e.Handled = true;
+                break;
+            case Key.S when Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift):
+                CaptureScreenshot();
                 e.Handled = true;
                 break;
             case Key.S when Keyboard.Modifiers == ModifierKeys.Control:
@@ -273,6 +288,7 @@ public partial class ExecutionPage : Page
 
     private void Pass_Click(object sender, RoutedEventArgs e) => MarkAs(TestStatus.Pass);
     private void Fail_Click(object sender, RoutedEventArgs e) => MarkAs(TestStatus.Fail);
+    private void Blocked_Click(object sender, RoutedEventArgs e) => MarkAs(TestStatus.Blocked);
     private void Skip_Click(object sender, RoutedEventArgs e) => SkipTest();
 
     private void FailTemplate_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -520,5 +536,117 @@ public partial class ExecutionPage : Page
     {
         SaveCurrentNotes();
         AppNavigationService.Instance.NavigateTo(new TestRunDetailPage(_testRunId), "TestRunDetail");
+    }
+
+    private void CaptureScreenshot_Click(object sender, RoutedEventArgs e) => CaptureScreenshot();
+
+    private void CaptureScreenshot()
+    {
+        if (_currentResult == null) return;
+
+        try
+        {
+            Debug.WriteLine("[ExecutionPage] Capturing screenshot...");
+
+            // Get virtual screen bounds (all monitors)
+            var screenWidth = (int)SystemParameters.VirtualScreenWidth;
+            var screenHeight = (int)SystemParameters.VirtualScreenHeight;
+            var screenLeft = (int)SystemParameters.VirtualScreenLeft;
+            var screenTop = (int)SystemParameters.VirtualScreenTop;
+
+            using var bitmap = new System.Drawing.Bitmap(screenWidth, screenHeight);
+            using var graphics = System.Drawing.Graphics.FromImage(bitmap);
+            graphics.CopyFromScreen(screenLeft, screenTop, 0, 0, new System.Drawing.Size(screenWidth, screenHeight));
+
+            var fileName = $"screenshot_{DateTime.Now:yyyyMMdd_HHmmss}.png";
+            var destPath = Path.Combine(
+                DatabaseService.AttachmentsPath,
+                $"{_testRunId}_{_currentResult.TestId}_{DateTime.Now.Ticks}_{fileName}");
+
+            bitmap.Save(destPath, System.Drawing.Imaging.ImageFormat.Png);
+
+            using var context = DatabaseService.CreateContext();
+            var attachment = new Attachment
+            {
+                TestResultId = _currentResult.Id,
+                FileName = fileName,
+                FilePath = destPath,
+                ContentType = "image/png",
+                FileSize = new FileInfo(destPath).Length,
+                CreatedDate = DateTime.UtcNow
+            };
+
+            context.Attachments.Add(attachment);
+            context.SaveChanges();
+
+            _currentResult.Attachments.Add(attachment);
+            AttachmentsList.ItemsSource = _currentResult.Attachments.ToList();
+
+            Debug.WriteLine($"[ExecutionPage] Screenshot captured: {fileName}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[ExecutionPage] Screenshot capture failed: {ex.Message}");
+            MessageBox.Show($"Failed to capture screenshot: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void EditTest_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentResult?.Test == null) return;
+
+        Debug.WriteLine($"[ExecutionPage] Opening edit dialog for test: {_currentResult.Test.Name}");
+
+        var editWindow = new TestEditWindow(_currentResult.Test);
+        editWindow.Owner = Window.GetWindow(this);
+        var result = editWindow.ShowDialog();
+
+        if (result == true && editWindow.TestUpdated)
+        {
+            // Refresh the display with updated test data
+            DisplayCurrentTest();
+            Debug.WriteLine("[ExecutionPage] Test updated, display refreshed.");
+        }
+    }
+
+    private void MoveToEnd_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentResult?.Test == null) return;
+
+        var test = _currentResult.Test;
+        Debug.WriteLine($"[ExecutionPage] Moving test to end: {test.Name}");
+
+        using var context = DatabaseService.CreateContext();
+
+        // Get max sort order across ALL tests in the project (not just category)
+        var maxSortOrder = context.Tests
+            .Where(t => t.Category.ProjectId == test.Category.ProjectId)
+            .Max(t => (int?)t.SortOrder) ?? 0;
+
+        // Update the test's sort order to be at the end
+        var dbTest = context.Tests.Find(test.Id);
+        if (dbTest != null)
+        {
+            dbTest.SortOrder = maxSortOrder + 1000; // Add buffer for future ordering
+            context.SaveChanges();
+            test.SortOrder = dbTest.SortOrder;
+        }
+
+        // Move this result to the end of our list
+        var currentResult = _currentResult;
+        _results.Remove(currentResult);
+        _results.Add(currentResult);
+
+        // Stay at current index (which now shows the next test) or adjust if at end
+        if (_currentIndex >= _results.Count)
+        {
+            _currentIndex = _results.Count - 1;
+        }
+
+        DisplayCurrentTest();
+        UpdateProgress();
+
+        Debug.WriteLine($"[ExecutionPage] Test moved to end. New position: {_results.Count}");
     }
 }

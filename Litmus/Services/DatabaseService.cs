@@ -30,7 +30,27 @@ public static class DatabaseService
         // Create database and apply any pending migrations
         context.Database.EnsureCreated();
 
+        // Apply manual migrations for schema changes
+        ApplyMigrations(context);
+
         Debug.WriteLine("[DatabaseService] Database initialized successfully.");
+    }
+
+    private static void ApplyMigrations(LitmusDbContext context)
+    {
+        // Migration: Add IsAutomated column to Tests table
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                ALTER TABLE Tests ADD COLUMN IsAutomated INTEGER NOT NULL DEFAULT 0;
+            ");
+            Debug.WriteLine("[DatabaseService] Migration: Added IsAutomated column to Tests table.");
+        }
+        catch
+        {
+            // Column already exists, ignore
+            Debug.WriteLine("[DatabaseService] Migration: IsAutomated column already exists.");
+        }
     }
 
     public static LitmusDbContext CreateContext()

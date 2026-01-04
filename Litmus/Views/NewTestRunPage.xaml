@@ -38,6 +38,47 @@
                     <TextBox x:Name="PatchTextBox" Width="60" Text="0" TextAlignment="Center"/>
                 </StackPanel>
 
+                <!-- Categories Filter -->
+                <TextBlock Text="Categories" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <Button Content="Select All" Padding="8,4" Margin="0,0,8,0" Click="SelectAllCategories_Click"/>
+                    <Button Content="Select None" Padding="8,4" Click="SelectNoneCategories_Click"/>
+                </StackPanel>
+                <Border Background="{StaticResource BackgroundDarkBrush}" CornerRadius="4" MaxHeight="150">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="CategoriesList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Content="{Binding Name, Mode=OneWay}" IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                              Foreground="{StaticResource ForegroundBrush}" Margin="8,4"
+                                              Checked="Category_CheckChanged" Unchecked="Category_CheckChanged">
+                                        <CheckBox.ToolTip>
+                                            <TextBlock>
+                                                <Run Text="{Binding TestCount, Mode=OneWay}"/>
+                                                <Run Text=" tests"/>
+                                            </TextBlock>
+                                        </CheckBox.ToolTip>
+                                    </CheckBox>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Automated Filter -->
+                <TextBlock Text="Test Type Filter" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton x:Name="AllTestsRadio" Content="All Tests" GroupName="AutoFilter"
+                                 Foreground="{StaticResource ForegroundBrush}" IsChecked="True"
+                                 Margin="0,0,16,0" Checked="AutoFilter_Changed"/>
+                    <RadioButton x:Name="AutomatedOnlyRadio" Content="Automated Only" GroupName="AutoFilter"
+                                 Foreground="{StaticResource ForegroundBrush}"
+                                 Margin="0,0,16,0" Checked="AutoFilter_Changed"/>
+                    <RadioButton x:Name="ManualOnlyRadio" Content="Manual Only" GroupName="AutoFilter"
+                                 Foreground="{StaticResource ForegroundBrush}"
+                                 Checked="AutoFilter_Changed"/>
+                </StackPanel>
+
                 <!-- Run Type -->
                 <TextBlock Text="Run Type" FontWeight="SemiBold" Margin="0,24,0,8"/>
                 <StackPanel>

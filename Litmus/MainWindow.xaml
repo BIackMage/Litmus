@@ -8,6 +8,7 @@
         Height="800" Width="1200"
         MinHeight="600" MinWidth="900"
         WindowStartupLocation="CenterScreen"
+        Icon="pack://application:,,,/Assets/app.ico"
         Style="{StaticResource DarkWindowStyle}">
 
     <Grid>

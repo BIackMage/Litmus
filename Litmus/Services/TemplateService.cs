@@ -76,7 +76,8 @@ public static class TemplateService
                             command = "",
                             expectedResult = "",
                             prepSteps = (string?)null,
-                            priority = "medium"
+                            priority = "medium",
+                            isAutomated = false
                         }
                     }
                 }
@@ -126,7 +127,8 @@ Generate the test plan as valid JSON using this exact structure:
           ""command"": ""[Step-by-step instructions to execute the test]"",
           ""expectedResult"": ""[What should happen if the test passes]"",
           ""prepSteps"": ""[Optional: Setup required before running test]"",
-          ""priority"": ""[critical|high|medium|low]""
+          ""priority"": ""[critical|high|medium|low]"",
+          ""isAutomated"": false
         }}
       ]
     }}
@@ -179,7 +181,8 @@ Generate the test plan as valid JSON using this exact structure:
                         command = "[Steps to execute - e.g., 1. Navigate to /login 2. Enter username 3. Enter password 4. Click Submit]",
                         expectedResult = "[Expected outcome - e.g., User is redirected to dashboard with welcome message]",
                         prepSteps = "[Optional setup - e.g., Ensure test account exists: test@example.com / Pass123]",
-                        priority = "critical"
+                        priority = "critical",
+                        isAutomated = false
                     },
                     new
                     {
@@ -188,7 +191,8 @@ Generate the test plan as valid JSON using this exact structure:
                         command = "[Steps]",
                         expectedResult = "[Expected outcome]",
                         prepSteps = "",
-                        priority = "high"
+                        priority = "high",
+                        isAutomated = false
                     }
                 }
             },
@@ -204,7 +208,8 @@ Generate the test plan as valid JSON using this exact structure:
                         command = "[Steps]",
                         expectedResult = "[Expected outcome]",
                         prepSteps = "",
-                        priority = "medium"
+                        priority = "medium",
+                        isAutomated = false
                     }
                 }
             }
@@ -227,7 +232,8 @@ Generate the test plan as valid JSON using this exact structure:
                         command = "",
                         expectedResult = "",
                         prepSteps = "",
-                        priority = "medium"
+                        priority = "medium",
+                        isAutomated = false
                     }
                 }
             }

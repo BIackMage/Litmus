@@ -55,12 +55,14 @@ public partial class TestRunDetailPage : Page
 
         var passed = testRun.TestResults.Count(r => r.Status == TestStatus.Pass);
         var failed = testRun.TestResults.Count(r => r.Status == TestStatus.Fail);
+        var blocked = testRun.TestResults.Count(r => r.Status == TestStatus.Blocked);
         var notRun = testRun.TestResults.Count(r => r.Status == TestStatus.NotRun);
         var total = testRun.TestResults.Count;
         var passRate = total > 0 ? (double)passed / total * 100 : 0;
 
         PassedText.Text = passed.ToString();
         FailedText.Text = failed.ToString();
+        BlockedText.Text = blocked.ToString();
         NotRunText.Text = notRun.ToString();
         PassRateText.Text = $"{passRate:F0}%";
 
@@ -76,11 +78,13 @@ public partial class TestRunDetailPage : Page
                 r.Status,
                 r.Notes,
                 r.ExecutedDate,
-                StatusColor = r.Status == TestStatus.Pass
-                    ? (Brush)FindResource("SuccessBrush")
-                    : r.Status == TestStatus.Fail
-                        ? (Brush)FindResource("ErrorBrush")
-                        : (Brush)FindResource("ForegroundDimBrush")
+                StatusColor = r.Status switch
+                {
+                    TestStatus.Pass => (Brush)FindResource("SuccessBrush"),
+                    TestStatus.Fail => (Brush)FindResource("ErrorBrush"),
+                    TestStatus.Blocked => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CC7000")),
+                    _ => (Brush)FindResource("ForegroundDimBrush")
+                }
             })
             .Cast<dynamic>()
             .ToList();
@@ -96,7 +100,8 @@ public partial class TestRunDetailPage : Page
         {
             1 => _allResults.Where(r => r.Status == TestStatus.Pass).ToList(),
             2 => _allResults.Where(r => r.Status == TestStatus.Fail).ToList(),
-            3 => _allResults.Where(r => r.Status == TestStatus.NotRun).ToList(),
+            3 => _allResults.Where(r => r.Status == TestStatus.Blocked).ToList(),
+            4 => _allResults.Where(r => r.Status == TestStatus.NotRun).ToList(),
             _ => _allResults
         };
 

@@ -27,7 +27,8 @@ This document describes the JSON format used by Litmus Test Manager for importin
           "command": "Steps to execute the test",
           "expectedResult": "What should happen if passing",
           "prepSteps": "Optional setup instructions",
-          "priority": "critical|high|medium|low"
+          "priority": "critical|high|medium|low",
+          "isAutomated": false
         }
       ]
     }
@@ -58,6 +59,7 @@ This document describes the JSON format used by Litmus Test Manager for importin
 | `expectedResult` | Yes | What the tester should observe if the test passes |
 | `prepSteps` | No | Setup required before running (test data, accounts, environment) |
 | `priority` | No | `critical`, `high`, `medium` (default), or `low` |
+| `isAutomated` | No | `true` if this test has automated coverage, `false` (default) if manual only |
 
 ## Priority Guidelines
 
@@ -95,7 +97,8 @@ Output as JSON using this exact format:
           "command": "[Step-by-step instructions]",
           "expectedResult": "[Expected outcome]",
           "prepSteps": "[Setup if needed, or null]",
-          "priority": "critical|high|medium|low"
+          "priority": "critical|high|medium|low",
+          "isAutomated": false
         }
       ]
     }

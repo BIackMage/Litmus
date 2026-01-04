@@ -8,7 +8,21 @@
     <UseWPF>true</UseWPF>
     <!-- Suppress warnings from LiveCharts2 transitive dependencies (OpenTK, SkiaSharp) targeting older frameworks -->
     <NoWarn>$(NoWarn);NU1701</NoWarn>
+    <!-- App Icon -->
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <!-- Version Info -->
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
+    <Product>Litmus Test Manager</Product>
+    <Company>BIackMage</Company>
+    <Copyright>Copyright (c) 2025</Copyright>
+    <Description>A modern Windows desktop application for managing manual software testing.</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
@@ -19,6 +33,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
     <PackageReference Include="QuestPDF" Version="2025.12.1" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.11" />
   </ItemGroup>
+
 
 </Project>

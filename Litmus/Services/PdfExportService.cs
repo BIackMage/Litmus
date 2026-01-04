@@ -37,6 +37,7 @@ public static class PdfExportService
 
         var passedCount = latestResults.Count(r => r.Status == TestStatus.Pass);
         var failedCount = latestResults.Count(r => r.Status == TestStatus.Fail);
+        var blockedCount = latestResults.Count(r => r.Status == TestStatus.Blocked);
         var notRunCount = latestResults.Count(r => r.Status == TestStatus.NotRun);
         var totalCount = latestResults.Count;
         var passRate = totalCount > 0 ? (double)passedCount / totalCount * 100 : 0;
@@ -57,7 +58,7 @@ public static class PdfExportService
                 page.DefaultTextStyle(x => x.FontSize(10));
 
                 page.Header().Element(c => ComposeHeader(c, projectName));
-                page.Content().Element(c => ComposeContent(c, passedCount, failedCount, notRunCount, passRate, failedTests));
+                page.Content().Element(c => ComposeContent(c, passedCount, failedCount, blockedCount, notRunCount, passRate, failedTests));
                 page.Footer().Element(ComposeFooter);
             });
         }).GeneratePdf(filePath);
@@ -81,7 +82,7 @@ public static class PdfExportService
         });
     }
 
-    private static void ComposeContent(IContainer container, int passed, int failed, int notRun, double passRate, System.Collections.Generic.List<TestResult> failedTests)
+    private static void ComposeContent(IContainer container, int passed, int failed, int blocked, int notRun, double passRate, System.Collections.Generic.List<TestResult> failedTests)
     {
         container.PaddingVertical(20).Column(column =>
         {
@@ -99,6 +100,12 @@ public static class PdfExportService
                 {
                     c.Item().Text("Failed").FontColor(Colors.Grey.Medium);
                     c.Item().Text(failed.ToString()).FontSize(24).Bold().FontColor(Colors.Red.Medium);
+                });
+                row.ConstantItem(10);
+                row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(10).Column(c =>
+                {
+                    c.Item().Text("Blocked").FontColor(Colors.Grey.Medium);
+                    c.Item().Text(blocked.ToString()).FontSize(24).Bold().FontColor(Colors.Orange.Medium);
                 });
                 row.ConstantItem(10);
                 row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(10).Column(c =>

@@ -105,7 +105,12 @@
                               SelectionMode="Extended"
                               Visibility="Collapsed"
                               SelectionChanged="TestsGrid_SelectionChanged"
-                              MouseDoubleClick="TestsGrid_MouseDoubleClick">
+                              MouseDoubleClick="TestsGrid_MouseDoubleClick"
+                              AllowDrop="True"
+                              PreviewMouseLeftButtonDown="TestsGrid_PreviewMouseLeftButtonDown"
+                              PreviewMouseMove="TestsGrid_PreviewMouseMove"
+                              Drop="TestsGrid_Drop"
+                              DragOver="TestsGrid_DragOver">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" Width="200"/>
                             <DataGridTextColumn Header="Description" Binding="{Binding Description, Mode=OneWay}" Width="*"/>

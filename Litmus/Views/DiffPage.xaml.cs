@@ -89,17 +89,57 @@ public partial class DiffPage : Page
     {
         using var context = DatabaseService.CreateContext();
 
-        var leftResults = context.TestResults
+        // Get runs for labels
+        var leftRun = context.TestRuns.Include(r => r.Project).FirstOrDefault(r => r.Id == leftRunId);
+        var rightRun = context.TestRuns.Include(r => r.Project).FirstOrDefault(r => r.Id == rightRunId);
+
+        if (leftRun != null)
+        {
+            LeftRunLabel.Text = $"{leftRun.Project.Name} - Build {leftRun.BuildVersion}";
+        }
+        if (rightRun != null)
+        {
+            RightRunLabel.Text = $"{rightRun.Project.Name} - Build {rightRun.BuildVersion}";
+        }
+
+        var leftResultsList = context.TestResults
             .Include(r => r.Test)
             .ThenInclude(t => t.Category)
             .Where(r => r.TestRunId == leftRunId)
-            .ToDictionary(r => r.TestId);
+            .ToList();
+
+        var leftResults = leftResultsList.ToDictionary(r => r.TestId);
 
         var rightResults = context.TestResults
             .Include(r => r.Test)
             .ThenInclude(t => t.Category)
             .Where(r => r.TestRunId == rightRunId)
             .ToList();
+
+        // Calculate summary stats
+        var leftPassed = leftResultsList.Count(r => r.Status == TestStatus.Pass);
+        var leftFailed = leftResultsList.Count(r => r.Status == TestStatus.Fail);
+        var leftBlocked = leftResultsList.Count(r => r.Status == TestStatus.Blocked);
+        var leftTotal = leftResultsList.Count;
+        var leftPassRate = leftTotal > 0 ? (double)leftPassed / leftTotal * 100 : 0;
+
+        var rightPassed = rightResults.Count(r => r.Status == TestStatus.Pass);
+        var rightFailed = rightResults.Count(r => r.Status == TestStatus.Fail);
+        var rightBlocked = rightResults.Count(r => r.Status == TestStatus.Blocked);
+        var rightTotal = rightResults.Count;
+        var rightPassRate = rightTotal > 0 ? (double)rightPassed / rightTotal * 100 : 0;
+
+        LeftPassedText.Text = leftPassed.ToString();
+        LeftFailedText.Text = leftFailed.ToString();
+        LeftBlockedText.Text = leftBlocked.ToString();
+        LeftPassRateText.Text = $"{leftPassRate:F0}%";
+
+        RightPassedText.Text = rightPassed.ToString();
+        RightFailedText.Text = rightFailed.ToString();
+        RightBlockedText.Text = rightBlocked.ToString();
+        RightPassRateText.Text = $"{rightPassRate:F0}%";
+
+        SummaryPanel.Visibility = Visibility.Visible;
 
         var regressions = new System.Collections.Generic.List<dynamic>();
         var fixes = new System.Collections.Generic.List<dynamic>();
@@ -120,11 +160,13 @@ public partial class DiffPage : Page
                 CategoryName = rightResult.Test.Category.Name,
                 LeftStatus = leftResult.Status,
                 RightStatus = rightResult.Status,
-                StatusColor = rightResult.Status == TestStatus.Pass
-                    ? (Brush)FindResource("SuccessBrush")
-                    : rightResult.Status == TestStatus.Fail
-                        ? (Brush)FindResource("ErrorBrush")
-                        : (Brush)FindResource("ForegroundDimBrush")
+                StatusColor = rightResult.Status switch
+                {
+                    TestStatus.Pass => (Brush)FindResource("SuccessBrush"),
+                    TestStatus.Fail => (Brush)FindResource("ErrorBrush"),
+                    TestStatus.Blocked => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CC7000")),
+                    _ => (Brush)FindResource("ForegroundDimBrush")
+                }
             };
 
             if (leftResult.Status == TestStatus.Pass && rightResult.Status == TestStatus.Fail)

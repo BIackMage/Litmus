@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -10,9 +12,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Litmus.Views;
 
+public class CategorySelection : INotifyPropertyChanged
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public int TestCount { get; set; }
+
+    private bool _isSelected = true;
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
+        {
+            _isSelected = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+}
+
 public partial class NewTestRunPage : Page
 {
     private int? _preselectedProjectId;
+    private List<CategorySelection> _categories = new();
 
     public NewTestRunPage(int? projectId = null)
     {
@@ -24,6 +47,30 @@ public partial class NewTestRunPage : Page
         FullRunRadio.Checked += RunType_Changed;
         CopyPreviousRadio.Checked += RunType_Changed;
         RetestFailedRadio.Checked += RunType_Changed;
+
+        AllTestsRadio.Checked += AutoFilter_Changed;
+        AutomatedOnlyRadio.Checked += AutoFilter_Changed;
+        ManualOnlyRadio.Checked += AutoFilter_Changed;
+    }
+
+    private void AutoFilter_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded) return;
+        UpdateUI();
+    }
+
+    private bool? GetAutomatedFilter()
+    {
+        if (AutomatedOnlyRadio.IsChecked == true) return true;
+        if (ManualOnlyRadio.IsChecked == true) return false;
+        return null; // All tests
+    }
+
+    private string GetAutoFilterLabel()
+    {
+        if (AutomatedOnlyRadio.IsChecked == true) return " (automated only)";
+        if (ManualOnlyRadio.IsChecked == true) return " (manual only)";
+        return "";
     }
 
     private void NewTestRunPage_Loaded(object sender, RoutedEventArgs e)
@@ -55,6 +102,57 @@ public partial class NewTestRunPage : Page
 
     private void ProjectComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        LoadCategories();
+        UpdateUI();
+    }
+
+    private void LoadCategories()
+    {
+        if (ProjectComboBox.SelectedItem is not Project project)
+        {
+            _categories.Clear();
+            CategoriesList.ItemsSource = null;
+            return;
+        }
+
+        using var context = DatabaseService.CreateContext();
+        _categories = context.Categories
+            .Where(c => c.ProjectId == project.Id)
+            .OrderBy(c => c.SortOrder)
+            .ThenBy(c => c.Name)
+            .Select(c => new CategorySelection
+            {
+                Id = c.Id,
+                Name = c.Name,
+                TestCount = c.Tests.Count,
+                IsSelected = true
+            })
+            .ToList();
+
+        CategoriesList.ItemsSource = _categories;
+        Debug.WriteLine($"[NewTestRunPage] Loaded {_categories.Count} categories for project {project.Name}");
+    }
+
+    private void SelectAllCategories_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var cat in _categories)
+        {
+            cat.IsSelected = true;
+        }
+        UpdateUI();
+    }
+
+    private void SelectNoneCategories_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var cat in _categories)
+        {
+            cat.IsSelected = false;
+        }
+        UpdateUI();
+    }
+
+    private void Category_CheckChanged(object sender, RoutedEventArgs e)
+    {
         UpdateUI();
     }
 
@@ -75,8 +173,21 @@ public partial class NewTestRunPage : Page
 
         using var context = DatabaseService.CreateContext();
 
-        var testCount = context.Tests
-            .Count(t => t.Category.ProjectId == project.Id);
+        // Get selected category IDs
+        var selectedCategoryIds = _categories.Where(c => c.IsSelected).Select(c => c.Id).ToList();
+        var selectedCategoryCount = selectedCategoryIds.Count;
+        var totalCategoryCount = _categories.Count;
+
+        // Get automated filter
+        var autoFilter = GetAutomatedFilter();
+        var autoLabel = GetAutoFilterLabel();
+
+        var testQuery = context.Tests.Where(t => selectedCategoryIds.Contains(t.CategoryId));
+        if (autoFilter.HasValue)
+        {
+            testQuery = testQuery.Where(t => t.IsAutomated == autoFilter.Value);
+        }
+        var testCount = testQuery.Count();
 
         var previousRuns = context.TestRuns
             .Where(r => r.ProjectId == project.Id)
@@ -103,10 +214,15 @@ public partial class NewTestRunPage : Page
             PreviousRunPanel.Visibility = Visibility.Collapsed;
         }
 
+        // Category info string
+        var categoryInfo = selectedCategoryCount == totalCategoryCount
+            ? "all categories"
+            : $"{selectedCategoryCount} of {totalCategoryCount} categories";
+
         // Update summary
         if (FullRunRadio.IsChecked == true)
         {
-            SummaryText.Text = $"Will create a new test run with {testCount} tests for {project.Name}. All tests will start as 'Not Run'.";
+            SummaryText.Text = $"Will create a new test run with {testCount} tests{autoLabel} from {categoryInfo}. All tests will start as 'Not Run'.";
             StartButton.IsEnabled = testCount > 0;
         }
         else if (CopyPreviousRadio.IsChecked == true)
@@ -118,8 +234,8 @@ public partial class NewTestRunPage : Page
             }
             else
             {
-                SummaryText.Text = $"Will create a new test run with {testCount} tests, copying results from the selected previous run.";
-                StartButton.IsEnabled = true;
+                SummaryText.Text = $"Will create a new test run with {testCount} tests{autoLabel} from {categoryInfo}, copying results from the selected previous run.";
+                StartButton.IsEnabled = testCount > 0;
             }
         }
         else if (RetestFailedRadio.IsChecked == true)
@@ -132,9 +248,14 @@ public partial class NewTestRunPage : Page
             else
             {
                 var prevRunId = previousRuns.First().Id;
-                var failedCount = context.TestResults
-                    .Count(r => r.TestRunId == prevRunId && r.Status == TestStatus.Fail);
-                SummaryText.Text = $"Will create a new test run with {failedCount} failed tests from the selected previous run.";
+                var failedQuery = context.TestResults
+                    .Where(r => r.TestRunId == prevRunId && r.Status == TestStatus.Fail && selectedCategoryIds.Contains(r.Test.CategoryId));
+                if (autoFilter.HasValue)
+                {
+                    failedQuery = failedQuery.Where(r => r.Test.IsAutomated == autoFilter.Value);
+                }
+                var failedCount = failedQuery.Count();
+                SummaryText.Text = $"Will create a new test run with {failedCount} failed tests{autoLabel} from {categoryInfo}.";
                 StartButton.IsEnabled = failedCount > 0;
             }
         }
@@ -156,7 +277,10 @@ public partial class NewTestRunPage : Page
         if (!int.TryParse(MinorTextBox.Text, out int minor)) minor = 0;
         if (!int.TryParse(PatchTextBox.Text, out int patch)) patch = 0;
 
-        Debug.WriteLine($"[NewTestRunPage] Creating test run for project {project.Id}, version {major}.{minor}.{patch}");
+        // Get selected category IDs
+        var selectedCategoryIds = _categories.Where(c => c.IsSelected).Select(c => c.Id).ToList();
+
+        Debug.WriteLine($"[NewTestRunPage] Creating test run for project {project.Id}, version {major}.{minor}.{patch}, categories: {selectedCategoryIds.Count}");
 
         using var context = DatabaseService.CreateContext();
 
@@ -172,10 +296,16 @@ public partial class NewTestRunPage : Page
         context.TestRuns.Add(testRun);
         context.SaveChanges();
 
-        // Get tests for this project
-        var tests = context.Tests
-            .Where(t => t.Category.ProjectId == project.Id)
-            .ToList();
+        // Get automated filter
+        var autoFilter = GetAutomatedFilter();
+
+        // Get tests for selected categories and automated filter
+        var testsQuery = context.Tests.Where(t => selectedCategoryIds.Contains(t.CategoryId));
+        if (autoFilter.HasValue)
+        {
+            testsQuery = testsQuery.Where(t => t.IsAutomated == autoFilter.Value);
+        }
+        var tests = testsQuery.ToList();
 
         int? previousRunId = null;
         if ((CopyPreviousRadio.IsChecked == true || RetestFailedRadio.IsChecked == true)
@@ -227,7 +357,7 @@ public partial class NewTestRunPage : Page
         }
 
         context.SaveChanges();
-        Debug.WriteLine($"[NewTestRunPage] Created test run: {testRun.Id}");
+        Debug.WriteLine($"[NewTestRunPage] Created test run: {testRun.Id} with {tests.Count} tests");
 
         // Navigate to execution mode
         AppNavigationService.Instance.NavigateTo(new ExecutionPage(testRun.Id), "Execution");

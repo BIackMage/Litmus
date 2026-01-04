@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Litmus.Data;
 using Litmus.Models;
 using Litmus.Services;
@@ -15,6 +16,8 @@ public partial class ProjectDetailPage : Page
     private readonly int _projectId;
     private int? _selectedCategoryId;
     private int? _selectedTestId;
+    private Point _dragStartPoint;
+    private Test? _draggedTest;
 
     public ProjectDetailPage(int projectId)
     {
@@ -310,4 +313,122 @@ public partial class ProjectDetailPage : Page
             LoadProject();
         }
     }
+
+    #region Drag and Drop Reordering
+
+    private void TestsGrid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        _dragStartPoint = e.GetPosition(null);
+    }
+
+    private void TestsGrid_PreviewMouseMove(object sender, MouseEventArgs e)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed)
+            return;
+
+        var position = e.GetPosition(null);
+        var diff = _dragStartPoint - position;
+
+        if (System.Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
+            System.Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+        {
+            // Get the dragged item
+            var dataGrid = sender as DataGrid;
+            var row = FindVisualParent<DataGridRow>((DependencyObject)e.OriginalSource);
+
+            if (row != null && dataGrid != null)
+            {
+                _draggedTest = row.Item as Test;
+                if (_draggedTest != null)
+                {
+                    Debug.WriteLine($"[ProjectDetailPage] Starting drag for test: {_draggedTest.Name}");
+                    var data = new DataObject(typeof(Test), _draggedTest);
+                    DragDrop.DoDragDrop(dataGrid, data, DragDropEffects.Move);
+                }
+            }
+        }
+    }
+
+    private void TestsGrid_DragOver(object sender, DragEventArgs e)
+    {
+        if (!e.Data.GetDataPresent(typeof(Test)))
+        {
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
+            return;
+        }
+
+        e.Effects = DragDropEffects.Move;
+        e.Handled = true;
+    }
+
+    private void TestsGrid_Drop(object sender, DragEventArgs e)
+    {
+        if (!e.Data.GetDataPresent(typeof(Test)) || _draggedTest == null)
+            return;
+
+        // Find the target row
+        var row = FindVisualParent<DataGridRow>((DependencyObject)e.OriginalSource);
+        if (row == null)
+            return;
+
+        var targetTest = row.Item as Test;
+        if (targetTest == null || targetTest.Id == _draggedTest.Id)
+            return;
+
+        Debug.WriteLine($"[ProjectDetailPage] Dropping test '{_draggedTest.Name}' onto '{targetTest.Name}'");
+
+        ReorderTests(_draggedTest.Id, targetTest.Id, _draggedTest.CategoryId);
+        _draggedTest = null;
+    }
+
+    private void ReorderTests(int sourceTestId, int targetTestId, int categoryId)
+    {
+        using var context = DatabaseService.CreateContext();
+        var tests = context.Tests
+            .Where(t => t.CategoryId == categoryId)
+            .OrderBy(t => t.SortOrder)
+            .ThenBy(t => t.Name)
+            .ToList();
+
+        var source = tests.FirstOrDefault(t => t.Id == sourceTestId);
+        if (source == null) return;
+
+        var targetIndex = tests.FindIndex(t => t.Id == targetTestId);
+        if (targetIndex < 0) return;
+
+        // Remove from current position and insert at target
+        tests.Remove(source);
+        tests.Insert(targetIndex, source);
+
+        // Reassign contiguous SortOrder values
+        for (int i = 0; i < tests.Count; i++)
+        {
+            tests[i].SortOrder = i + 1;
+        }
+
+        context.SaveChanges();
+        Debug.WriteLine($"[ProjectDetailPage] Reordered tests in category {categoryId}");
+
+        // Refresh the view
+        if (_selectedCategoryId.HasValue)
+        {
+            ShowCategoryTests(_selectedCategoryId.Value);
+        }
+        LoadProject();
+    }
+
+    private static T? FindVisualParent<T>(DependencyObject child) where T : DependencyObject
+    {
+        var parentObject = VisualTreeHelper.GetParent(child);
+        if (parentObject == null)
+            return null;
+
+        if (parentObject is T parent)
+            return parent;
+
+        return FindVisualParent<T>(parentObject);
+    }
+
+    #endregion
 }

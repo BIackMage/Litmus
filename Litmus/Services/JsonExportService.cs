@@ -47,7 +47,8 @@ public static class JsonExportService
                             command = t.Command,
                             expectedResult = t.ExpectedResult,
                             prepSteps = t.PrepSteps,
-                            priority = t.Priority.ToString().ToLower()
+                            priority = t.Priority.ToString().ToLower(),
+                            isAutomated = t.IsAutomated
                         })
                         .ToList()
                 })
