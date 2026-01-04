@@ -85,4 +85,5 @@ Desktop.ini
 # Release builds
 RELEASE/
 publish/
+Archive/
 *.zip
