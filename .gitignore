@@ -81,3 +81,8 @@ Desktop.ini
 
 # Application data (user's local database)
 # Note: The SQLite database is stored in %LOCALAPPDATA%/Litmus, not in the repo
+
+# Release builds
+RELEASE/
+publish/
+*.zip
